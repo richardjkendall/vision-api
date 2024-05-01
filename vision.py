@@ -91,8 +91,8 @@ def determine_gate_geometry(img):
   if len(slats) > 0:
     cv2.rectangle(result, (gate_min_x, gate_min_y), (gate_max_x, gate_max_y), (0, 0, 255), 2)
   else:
-     gate_min_x = 0
-     gate_min_y = 0
+     gate_min_x = -1
+     gate_min_y = -1
 
   return {
      "slats": slats,
@@ -156,14 +156,19 @@ def get_gate_status(debug = False):
     cv2.imwrite(f"debug/{id}_05_result.jpg", geom["img"])
 
   # prepare results and return them
-  percentage_gate_fill = (geom["rect"][1][0] - geom["rect"][0][1]) / 513
+  gate_left_edge = geom["rect"][0][0]
+  logger.info(f"Gate left edge = {gate_left_edge}")
+  percentage_gate_fill = 1 - (gate_left_edge / 513)
+  if gate_left_edge == -1:
+    logger.info("Setting percentage gate fill to 0 as left edge is -1")
+    percentage_gate_fill = 0
   gap_size = 3.2 * (1 - percentage_gate_fill)
   et = time.time()
 
   return {
      "id": id,
      "slats": len(geom["slats"]),
-     "percentage_gate_fill": 1 if percentage_gate_fill > 1 else percentage_gate_fill,
+     "percentage_gate_fill": 0 if percentage_gate_fill < 0 else percentage_gate_fill,
      "gap_size": 0 if gap_size < 0 else gap_size,
      "day": day,
      "gate_rect": geom["rect"],
