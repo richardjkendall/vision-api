@@ -138,7 +138,7 @@ def get_gate_status(debug = False):
     cv2.imwrite(f"debug/{id}_02_roi.jpg", roi)
 
   # get dark regions
-  upper = (80, 80, 80)
+  upper = (90, 90, 90)
   if not day:
     upper = (30, 30, 30)
   thresh = find_dark_regions(roi, upper)
